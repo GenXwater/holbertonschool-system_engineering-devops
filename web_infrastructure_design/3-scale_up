@@ -1,0 +1,80 @@
+# README: Application Server vs Web Server
+
+This document describes the infrastructure design that splits components (web server, application server, database) across dedicated servers while introducing a load balancer for traffic distribution. This improves scalability, performance, and fault tolerance.
+
+---
+
+## Components of the Infrastructure
+
+### 1. **1 Additional Server**
+   - Dedicated to running the application server to isolate its functionality.
+
+### 2. **1 Load Balancer (HAProxy)**
+   - Configured as a cluster with the other load balancer to distribute traffic across servers, ensuring high availability and scalability.
+
+### 3. **Split Components**
+   - Each core functionality is hosted on its own server:
+     - **Web Server (Nginx):** Handles static content and forwards dynamic requests to the application server.
+     - **Application Server:** Processes business logic and serves dynamic responses.
+     - **Database (MySQL):** Manages data storage and retrieval.
+
+---
+
+## Why Add These Elements?
+
+### 1. **Additional Server**
+   - Isolates the application server to improve performance by dedicating resources specifically for application logic.
+   - Prevents competition for resources between the application server and other components.
+
+### 2. **Load Balancer (HAProxy)**
+   - Ensures that incoming traffic is evenly distributed across the infrastructure.
+   - Configured as a cluster with the existing load balancer to enhance fault tolerance. If one load balancer fails, the other takes over.
+
+### 3. **Split Components**
+   - Improves scalability:
+     - Each component can be scaled independently based on its workload (e.g., adding more database replicas or web servers).
+   - Enhances performance:
+     - Dedicating resources to each functionality ensures that high traffic or intensive processing does not impact other components.
+   - Increases fault tolerance:
+     - Failure of one component (e.g., the web server) does not affect others (e.g., the database).
+
+---
+
+## Explanation of the Infrastructure
+
+### Web Server
+- **Purpose:**  
+  - Handles incoming HTTP/HTTPS requests.
+  - Serves static content (images, CSS, JavaScript).
+  - Forwards dynamic requests to the application server.
+
+### Application Server
+- **Purpose:**  
+  - Processes application logic and generates dynamic responses.
+  - Interacts with the database for reading and writing data.
+
+### Database Server
+- **Purpose:**  
+  - Stores and manages structured data required by the application.
+  - Handles database queries for both reads and writes.
+
+### Load Balancer
+- **Purpose:**  
+  - Distributes incoming traffic across web and application servers to avoid overloading any single server.
+  - The cluster configuration ensures redundancy and availability.
+
+---
+
+## Benefits of This Infrastructure
+1. **Improved Performance:**
+   - By splitting components, each server is optimized for its specific task, reducing resource contention.
+
+2. **Scalability:**
+   - Components can be scaled independently as demand grows (e.g., adding more web servers for higher traffic).
+
+3. **Fault Tolerance:**
+   - The load balancer cluster and component isolation reduce the impact of failures on the overall system.
+
+4. **Isolation of Concerns:**
+   - Each server handles a dedicated responsibility, making the infrastructure more modular and easier to manage.
+
